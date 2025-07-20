@@ -21,7 +21,7 @@ class RedisClient:
             logger.error(f"❌ Error connecting to Redis: {redis_e}")
             raise
 
-    def set(self, key: str, value: str):
+    def set(self, key: str, value: str) -> None:
         try:
             if key is None or value is None:
                 raise ValueError("Key or value must not be None.")
