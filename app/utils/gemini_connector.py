@@ -1,0 +1,87 @@
+import json
+from typing import Dict
+
+import google.generativeai as genai
+
+from data.prompt_skeleton.prompts import Prompts
+
+GEMINI_MODEL = "gemini-2.5-flash"  # Default model, can be changed as needed
+
+
+class GeminiConnector:
+    """
+    A class to facilitate interaction with the Google Gemini API.
+    Handles API key configuration and basic text/JSON generation.
+    """
+
+    def __init__(self, api_key: str):
+        if not api_key:
+            raise ValueError("API key cannot be empty.")
+        try:
+            genai.configure(api_key=api_key)
+            self.model = genai.GenerativeModel(GEMINI_MODEL)
+            print("✅ Gemini model initialized successfully.")
+        except Exception as e:
+            raise (f"❌ Failed to initialize Gemini model: {e}")
+
+    def generate_text(self, prompt: str, **kwargs) -> str:
+        try:
+            response = self.model.generate_content(prompt, **kwargs)
+            return response.text
+        except Exception as e:
+            raise Exception(f"Failed to generate text from Gemini API: {e}")
+
+    def generate_json(self, prompt: str, **kwargs) -> Dict:
+        raw_response = self.generate_text(prompt, **kwargs)
+        if not raw_response:
+            raise Exception("Received empty response from Gemini API.")
+        try:
+            if raw_response.strip().startswith("```json") and raw_response.strip().endswith("```"):
+                json_string = raw_response.strip()[7:-3].strip()
+            else:
+                json_string = raw_response.strip()
+
+            return json.loads(json_string)
+        except json.JSONDecodeError as e:
+            raise Exception("Failed to decode JSON from Gemini API response.") from e
+        except Exception as json_e:
+            raise Exception(f"An unexpected error occurred while processing the response: {json_e}") from json_e
+
+    def generate_chat_response(self, chat_history: list, new_message: str, **kwargs) -> str:
+        try:
+            chat = self.model.start_chat(history=chat_history)
+            response = chat.send_message(new_message, **kwargs)
+            return response.text
+        except Exception as e:
+            raise Exception(f"Failed to generate chat response: {e}")
+
+    def get_model_info(self) -> Dict:
+        try:
+            for m in genai.list_models():
+                if m.name == f"models/{self.model.model_name}":
+                    return m.to_dict()
+            return {"message": f"Could not find detailed info for model: {self.model.model_name}"}
+        except Exception as e:
+            raise Exception(f"Failed to retrieve model info: {e}")
+
+
+class ResumeParser:
+    """
+    A class to parse resume text into a structured JSON format using Gemini AI.
+    It utilizes an instance of GeminiConnector.
+    """
+
+    def __init__(self, gemini_connector: GeminiConnector):
+        if not isinstance(gemini_connector, GeminiConnector):
+            raise TypeError("gemini_connector must be an instance of GeminiConnector.")
+        self.connector = gemini_connector
+
+    def parse_resume_to_json(self, resume_text: str) -> Dict:
+        prompt = Prompts.get_resume_to_json_prompt(resume_text)
+        print("Sending prompt to Gemini API via GeminiConnector...")
+        try:
+            resume_json = self.connector.generate_json(prompt)
+            print("Successfully received and parsed JSON from Gemini.")
+            return resume_json
+        except (json.JSONDecodeError, Exception) as e:
+            raise Exception(f"Failed to parse resume to JSON: {e}")
