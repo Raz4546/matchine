@@ -3,8 +3,7 @@ from typing import Dict
 
 import google.generativeai as genai
 from loguru import logger
-
-from data.prompt_skeleton.prompts import Prompts
+from app.utils.prompt_skeleton.prompts import Prompts
 
 GEMINI_MODEL = "gemini-2.5-flash"  # Default model, can be changed as needed
 
@@ -40,7 +39,9 @@ class GeminiConnector:
             logger.error("Received empty response from Gemini API.")
             raise
         try:
-            if raw_response.strip().startswith("```json") and raw_response.strip().endswith("```"):
+            if raw_response.strip().startswith(
+                "```json"
+            ) and raw_response.strip().endswith("```"):
                 json_string = raw_response.strip()[7:-3].strip()
             else:
                 json_string = raw_response.strip()
@@ -50,10 +51,14 @@ class GeminiConnector:
             logger.error(f"❌ Failed to decode JSON from Gemini API response: {json_e}")
             raise
         except Exception as e:
-            logger.error(f"❌ An unexpected error occurred while processing the response: {e}")
+            logger.error(
+                f"❌ An unexpected error occurred while processing the response: {e}"
+            )
             raise
 
-    def generate_chat_response(self, chat_history: list, new_message: str, **kwargs) -> str:
+    def generate_chat_response(
+        self, chat_history: list, new_message: str, **kwargs
+    ) -> str:
         try:
             chat = self.model.start_chat(history=chat_history)
             response = chat.send_message(new_message, **kwargs)
@@ -67,7 +72,9 @@ class GeminiConnector:
             for m in genai.list_models():
                 if m.name == f"models/{self.model.model_name}":
                     return m.to_dict()
-            return {"message": f"Could not find detailed info for model: {self.model.model_name}"}
+            return {
+                "message": f"Could not find detailed info for model: {self.model.model_name}"
+            }
         except Exception as e:
             logger.error(f"❌ Failed to retrieve model info: {e}")
             raise

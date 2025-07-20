@@ -40,9 +40,13 @@ def output_parsed_data() -> None:
         data = parse_pdf()
         with open(get_settings().PDF_OUTPUT_PATH, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
-            logger.info(f"✅ Successfully wrote parsed JSON data to: {get_settings().PDF_OUTPUT_PATH}")
+            logger.info(
+                f"✅ Successfully wrote parsed JSON data to: {get_settings().PDF_OUTPUT_PATH}"
+            )
     except IOError as e:
-        logger.error(f"❌ Error writing to output file {get_settings().PDF_OUTPUT_PATH}: {e}")
+        logger.error(
+            f"❌ Error writing to output file {get_settings().PDF_OUTPUT_PATH}: {e}"
+        )
     except Exception as e:
         logger.error(f"❌ An unexpected error occurred: {e}")
 
