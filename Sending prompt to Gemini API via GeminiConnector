@@ -1,0 +1,3 @@
+2025-07-20 16:18:49.976 | INFO     | app.utils.gemini_connector:parse_resume_to_json:93 - Successfully received and parsed JSON from Gemini.
+2025-07-20 16:18:49.977 | INFO     | __main__:<module>:20 - Successfully parsed resume to JSON format.
+2025-07-20 16:18:49.978 | INFO     | __main__:<module>:28 - Successfully wrote parsed JSON data to: C:\\Users\\Raz\\OneDrive\\שולחן העבודה\\matchine\\data\\resume\\google-software-engineer-resume-example.txt
