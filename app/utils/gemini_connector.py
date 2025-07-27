@@ -3,9 +3,9 @@ from typing import Dict
 
 import google.generativeai as genai
 from loguru import logger
-from app.utils.prompt_skeleton.prompts import Prompts
+from utils.prompt_skeleton.json_prompt import Prompts
 
-GEMINI_MODEL = "gemini-2.5-flash"  # Default model, can be changed as needed
+GEMINI_MODEL = "gemini-2.5-flash"
 
 
 class GeminiConnector:
